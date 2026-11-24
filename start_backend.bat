@@ -9,14 +9,7 @@ REM Set UTF-8 encoding to avoid crashes on Windows
 set PYTHONUTF8=1
 set PYTHONIOENCODING=utf-8
 
-REM Check if .env exists
-if not exist "backend\.env" (
-    echo [ERROR] backend\.env file not found!
-    echo Please create backend\.env and add your GROQ_API_KEY
-    echo Get a free key at: https://console.groq.com
-    pause
-    exit /b 1
-)
+REM .env is optional. Without it, the backend uses local Ollama.
 
 set "PYTHON=python"
 if exist "backend\venv\Scripts\python.exe" set "PYTHON=%CD%\backend\venv\Scripts\python.exe"

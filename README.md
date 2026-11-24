@@ -1,5 +1,7 @@
 # MedAssist AI: Agentic Medical Document Assistant
 
+[![Backend and frontend CI](https://github.com/priyankakamalanathan03-create/medassist-ai-agentic-medical-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/priyankakamalanathan03-create/medassist-ai-agentic-medical-rag/actions/workflows/ci.yml)
+
 **A multi-agent medical document assistant using hybrid retrieval and retrieval-augmented generation.**
 
 MedAssist-AI lets users ask questions about a collection of medical PDFs. It combines lexical and dense retrieval, a bounded tool-using language-model workflow, page-level citations, and a React interface.

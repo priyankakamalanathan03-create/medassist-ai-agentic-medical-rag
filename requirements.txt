@@ -6,6 +6,7 @@ python-dotenv
 
 # LLM (Groq API — fast and free)
 groq
+openai
 
 # RAG & Retrieval
 sentence-transformers
