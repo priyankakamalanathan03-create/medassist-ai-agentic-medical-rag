@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+venv/
+.venv/
+*.egg
+
+# Environment
+.env
+.env.local
+.env.*
+!.env.example
+
+# Python environments and generated artifacts
+*.pkl
+*.bin
+backend/venv/
+backend/.venv/
+backend/analytics.db
+backend/uploads/
+
+# Local medical documents and generated indexes (may be copyrighted or sensitive)
+data/raw_documents/*.pdf
+data/evaluation/*.csv
+data/evaluation/results.json
+backend/data/
+backend/services/
+backend/requirements.txt
+backend/check_full.py
+backend/run_all_tests.py
+backend/run_checks.py
+backend/test_demo.py
+backend/test_system.py
+
+# Screenshots and unused image assets
+screenshots/
+frontend/src/assets/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+frontend/dist/
+
+# Logs
+*.log

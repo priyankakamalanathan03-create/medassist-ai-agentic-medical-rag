@@ -1,0 +1,20 @@
+# MedAssist-AI Agentic System — Python Dependencies
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+
+# LLM (Groq API — fast and free)
+groq
+
+# RAG & Retrieval
+sentence-transformers
+faiss-cpu
+rank-bm25
+langchain-text-splitters
+
+# PDF Processing
+pypdf
+
+# Utilities
+requests
