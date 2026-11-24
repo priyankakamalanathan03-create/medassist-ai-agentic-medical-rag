@@ -16,7 +16,6 @@ if (sys.stdout.encoding or "").lower().replace("-", "") != "utf8" and hasattr(sy
 
 import faiss
 from pypdf import PdfReader
-from sentence_transformers import SentenceTransformer
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from rank_bm25 import BM25Okapi
 
@@ -27,8 +26,9 @@ os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 from config import (
     RAW_DIR, DATA_DIR, FAISS_FILE, DOCUMENTS_FILE,
-    BM25_FILE, EMBEDDING_MODEL, CHUNK_SIZE, CHUNK_OVERLAP
+    BM25_FILE, CHUNK_SIZE, CHUNK_OVERLAP
 )
+from rag.embeddings import load_embedding_model
 
 CATEGORY_MAP = {
     "Asthma.pdf":                            "Respiratory",
@@ -107,7 +107,7 @@ def build_index(pdf_folder: str = RAW_DIR) -> None:
 
     # Generate embeddings
     print("[Indexer] Generating embeddings...")
-    model = SentenceTransformer(EMBEDDING_MODEL)
+    model = load_embedding_model()
     texts = [d["text"] for d in documents]
     embeddings = model.encode(texts, show_progress_bar=True, normalize_embeddings=True)
 
@@ -158,7 +158,7 @@ def add_document_to_index(pdf_path: str) -> int:
     with open(DOCUMENTS_FILE, "wb") as f:
         pickle.dump(documents, f)
 
-    model      = SentenceTransformer(EMBEDDING_MODEL)
+    model      = load_embedding_model()
     texts      = [d["text"] for d in documents]
     embeddings = model.encode(texts, normalize_embeddings=True)
 
@@ -193,7 +193,7 @@ def remove_document_from_index(filename: str) -> bool:
         pickle.dump(documents, f)
 
     if documents:
-        model      = SentenceTransformer(EMBEDDING_MODEL)
+        model      = load_embedding_model()
         texts      = [d["text"] for d in documents]
         embeddings = model.encode(texts, normalize_embeddings=True)
 

@@ -102,6 +102,8 @@ The model name is configurable and must be available to your account. Never comm
 
 Place PDFs you have permission to process in `data/raw_documents/`. The project repository intentionally does not distribute its medical PDFs or generated indexes.
 
+PDF indexing uses the `sentence-transformers/all-MiniLM-L6-v2` embedding model. It is loaded from the local Hugging Face cache without making network requests; the model must be available in that cache before indexing or uploading documents.
+
 ```powershell
 Set-Location backend
 python -m rag.indexer

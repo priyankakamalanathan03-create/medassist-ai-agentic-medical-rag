@@ -31,7 +31,6 @@ except Exception as e:
     faiss = _DummyFAISSModule()
 
 import numpy as np
-from sentence_transformers import SentenceTransformer
 from rank_bm25 import BM25Okapi
 
 # Use cached model -- no internet required
@@ -40,8 +39,9 @@ os.environ.setdefault("HF_DATASETS_OFFLINE", "1")
 
 from config import (
     FAISS_FILE, DOCUMENTS_FILE, BM25_FILE,
-    EMBEDDING_MODEL, TOP_K_RETRIEVE
+    TOP_K_RETRIEVE
 )
+from rag.embeddings import load_embedding_model
 
 
 class HybridRetriever:
@@ -83,7 +83,7 @@ class HybridRetriever:
 
         # Embedding model – try to load, fallback to zero vectors.
         try:
-            self.embed_model = SentenceTransformer(EMBEDDING_MODEL)
+            self.embed_model = load_embedding_model()
         except Exception as e:
             print(f"[Retriever] SentenceTransformer not available ({e}). Using dummy embeddings.")
             class _DummyEmbed:

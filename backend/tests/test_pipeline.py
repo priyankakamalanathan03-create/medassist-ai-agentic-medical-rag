@@ -12,6 +12,7 @@ from agents.rag_agent import rag_agent
 from agents.symptom_agent import symptom_agent
 import analytics
 from llm.groq_client import GroqLLMClient, GroqRateLimitError
+from rag.embeddings import load_embedding_model
 from rag.retriever import HybridRetriever
 from tools.summarize_tool import _summarize_document
 from tools.search_tool import _search_documents
@@ -50,6 +51,15 @@ class TestIntentRouting(unittest.TestCase):
 
 
 class TestAgentTools(unittest.TestCase):
+    def test_embedding_model_load_uses_local_cache(self):
+        model = Mock()
+        with patch("rag.embeddings.SentenceTransformer", return_value=model) as loader:
+            loaded_model = load_embedding_model()
+
+        self.assertIs(loaded_model, model)
+        loader.assert_called_once()
+        self.assertTrue(loader.call_args.kwargs["local_files_only"])
+
     def test_tool_registry_rejects_missing_required_arguments(self):
         registry = ToolRegistry()
         called = []
@@ -134,7 +144,7 @@ class TestAgentTools(unittest.TestCase):
                 patch("rag.retriever.FAISS_FILE", os.path.join(temp_dir, "index.bin")),
                 patch("rag.retriever.BM25_FILE", os.path.join(temp_dir, "bm25.pkl")),
                 patch(
-                    "rag.retriever.SentenceTransformer",
+                    "rag.retriever.load_embedding_model",
                     return_value=SimpleNamespace(encode=Mock()),
                 ),
             ):
