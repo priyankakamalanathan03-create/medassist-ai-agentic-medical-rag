@@ -21,6 +21,52 @@ MedAssist-AI lets users ask questions about a collection of medical PDFs. It com
 - Session-scoped conversation memory, document upload/deletion, analytics, and citation export.
 - Separate prompt-clarity and citation/relevance heuristic indicators.
 
+## Technology Stack
+
+| Area | Technologies |
+|---|---|
+| Frontend | React 19, Vite, vanilla CSS, Server-Sent Events |
+| Backend | Python, FastAPI, Pydantic, Uvicorn |
+| Retrieval | BM25, FAISS, sentence-transformers/all-MiniLM-L6-v2, Reciprocal Rank Fusion |
+| Document Processing | PyPDF, LangChain text splitters |
+| Language Models | Groq cloud API with local Ollama fallback |
+| Automation | GitHub Actions, Python `unittest`, ESLint, Vite build |
+
+## Core Workflow
+
+1. Upload or package authorized medical PDFs.
+2. Extract text and preserve source filename and page metadata.
+3. Index chunks using lexical and dense retrieval.
+4. Classify the query as document Q&A, summarization, or symptom analysis.
+5. Route the query to a bounded ReAct specialist and registered tools.
+6. Stream the answer with agent/tool steps, sources, and quality indicators.
+
+## Application Screenshots
+
+### Figure 1 - Main Medical Agent Console
+
+![Main console and document library](docs/images/01-main-console.png)
+
+The main workspace shows the active LLM provider, hybrid retrieval mode, indexed chunk count, registered agents and tools, document library, upload area, chat console, analytics, light/dark mode, memory controls, and agent-trace panel.
+
+### Figure 2 - ReAct Agent Trace and Retrieved Answer
+
+![Agent trace and RAG answer](docs/images/02-agent-trace-and-rag-answer.png)
+
+This view demonstrates the visible reasoning pipeline: local Ollama fallback, specialist routing, a focused `search_documents` action, indexed document observations, streamed answer generation, and source citations.
+
+### Figure 3 - Tool Observation and Source-Grounded Response
+
+![Document observations and generated answer](docs/images/03-source-observation-and-answer.png)
+
+The agent trace exposes retrieved passages with PDF filenames and page numbers, while the chat panel presents the final answer, key points, sources, disclaimer, quality signal, and citation export control.
+
+### Figure 4 - Prompt Clarity and Citation Quality Metrics
+
+![Prompt clarity and quality metrics](docs/images/04-quality-metrics-panel.png)
+
+The detail panel separates prompt clarity from deterministic citation/relevance heuristics. It shows clear-task scoring, answer detail, source matching, topic overlap, suggestions, and an explicit notice that the metrics are not a fact-check or clinical correctness score.
+
 ## Architecture
 
 ```text
@@ -65,7 +111,10 @@ The retriever and indexes run locally. Answer generation uses Groq when configur
 │   ├── raw_documents/   # User-supplied PDFs; not included in this repository
 │   ├── processed_documents/ # Generated indexes; not included
 │   └── evaluation/      # Optional evaluation data; not included
+├── docs/
+│   └── images/          # Application screenshots used in this README
 ├── frontend/            # React 19 and Vite application
+├── .github/workflows/   # Backend and frontend continuous integration
 ├── requirements.txt
 ├── start_backend.bat
 └── start_frontend.bat
@@ -167,4 +216,4 @@ The repository includes an optional MedQuAD retrieval script. Its current hit-ra
 
 ## Data and privacy
 
-This repository excludes source PDFs, generated indexes, evaluation data, screenshots, build outputs, and credentials. Add only documents that you have permission to process and redistribute where applicable. Chat analytics stores submitted query text locally; do not enter identifiable patient data.
+This repository excludes source PDFs, generated indexes, evaluation data, build outputs, and credentials. It includes only application screenshots for documentation. Add only documents that you have permission to process and redistribute where applicable. Chat analytics stores submitted query text locally; do not enter identifiable patient data.
