@@ -35,6 +35,7 @@ def chat(request: ChatRequest):
     def event_stream():
         answer_length = 0
         completion = None
+        fallback_reported = False
         try:
             for event in orchestrator.handle_stream(
                 query=request.question,
@@ -44,6 +45,13 @@ def chat(request: ChatRequest):
                     answer_length += len(event["data"])
                 elif event["type"] == "done":
                     completion = event["data"]
+                if (
+                    not fallback_reported
+                    and event["type"] in ("token", "done")
+                    and llm_client.get_active_provider() == "ollama"
+                ):
+                    fallback_reported = True
+                    yield f"data: {json.dumps({'type': 'trace', 'data': {'type': 'orchestrator', 'content': f'Groq unavailable; using local Ollama model {llm_client.get_model_name()}.'}})}\n\n"
                 yield f"data: {json.dumps(event)}\n\n"
             quality_score = {"High": 3, "Moderate": 2, "Low": 1}
             log_query(

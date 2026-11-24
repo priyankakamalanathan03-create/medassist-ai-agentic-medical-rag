@@ -1,4 +1,4 @@
-# MedAssist-AI
+# MedAssist AI: Agentic Medical Document Assistant
 
 **A multi-agent medical document assistant using hybrid retrieval and retrieval-augmented generation.**
 
@@ -42,10 +42,10 @@ FastAPI ──► deterministic intent router
  BM25 + FAISS + RRF over indexed PDF chunks
           │
           ▼
- Groq-hosted language model ──► cited answer + trace
+ Groq API (primary) / local Ollama fallback ──► cited answer + trace
 ```
 
-The retriever and indexes run locally. **Answer generation calls the Groq API**, so the complete application is not offline and requires network access, a valid API key, model availability, and provider quota.
+The retriever and indexes run locally. Answer generation uses Groq when configured and falls back to local Ollama when Groq is unavailable. With Ollama configured, chat can continue without an external inference request.
 
 ## Repository layout
 
@@ -74,7 +74,7 @@ The retriever and indexes run locally. **Answer generation calls the Groq API**,
 - Windows, macOS, or Linux
 - Python 3.10 or later (developed with Python 3.10)
 - Node.js and npm
-- A Groq API key and a model available to your Groq account
+- Either a Groq API key and an available model, or a running Ollama installation with a downloaded model
 - Medical PDF files that you are permitted to use
 
 ## Run locally
@@ -89,15 +89,16 @@ backend\venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 ```
 
-Copy `backend/.env.example` to `backend/.env` and set your own key:
+Copy `backend/.env.example` to `backend/.env`. Configure Groq as the primary provider, or leave its key unset to use local Ollama:
 
 ```text
-GROQ_API_KEY=your_groq_api_key
-GROQ_MODEL=llama-3.1-8b-instant
+GROQ_API_KEY=
+GROQ_MODEL=qwen/qwen3.8-27b
+OLLAMA_BASE_URL=http://127.0.0.1:11434/v1
+OLLAMA_MODEL=mistral:latest
 ```
 
-The model name is configurable and must be available to your account. Never commit or share `backend/.env`.
-If chat reports a TLS certificate validation error, check the Windows trust store or ask your network administrator to verify HTTPS inspection for `api.groq.com`. Do not disable certificate verification.
+Add your Groq key to use Groq as the primary provider. For local inference, install and start Ollama, then download the configured model with `ollama pull mistral:latest`. The backend automatically uses Ollama when Groq is blocked by TLS/network issues, unavailable, or rate-limited. Never disable TLS verification or commit/share `backend/.env`.
 
 ### 2. Add documents and build the indexes
 
@@ -160,7 +161,7 @@ The repository includes an optional MedQuAD retrieval script. Its current hit-ra
 - The document-summary tool selects representative passages; the language model synthesizes the final summary.
 - Retrieval quality depends on the supplied documents, PDF text extraction, chunking, and query wording.
 - The current project has not been clinically validated and must not be used for diagnosis or treatment.
-- Groq quota and API failures are surfaced to the user; a new API key does not itself increase an organization or model quota.
+- If both Groq and local Ollama are unavailable, the backend surfaces an error rather than fabricating an answer.
 
 ## Data and privacy
 

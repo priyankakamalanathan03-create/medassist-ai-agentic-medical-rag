@@ -164,9 +164,14 @@ class TestGroqRateLimits(unittest.TestCase):
                 completions=SimpleNamespace(create=create_mock),
             )
         )
+        client.local_client = None
+        client.local_model = "mistral:latest"
+        client._active_provider = "groq"
+        client._active_model = client.model
         client._last_call_time = 0
         client._rate_limited_until = 0.0
         client._daily_quota_exhausted = False
+        client._groq_unavailable = False
         return client
 
     def test_daily_token_limit_is_reported_without_waiting_or_retrying(self):
@@ -222,6 +227,65 @@ class TestGroqRateLimits(unittest.TestCase):
             list(client.generate_stream([{"role": "user", "content": "test"}]))
 
         create.assert_called_once()
+
+    def test_streaming_uses_local_ollama_after_groq_certificate_failure(self):
+        provider_error = RuntimeError("Connection error.")
+        provider_error.__cause__ = RuntimeError(
+            "[SSL: CERTIFICATE_VERIFY_FAILED] unable to get local issuer certificate"
+        )
+        groq_create = Mock(side_effect=provider_error)
+        client = self.make_client(groq_create)
+        local_chunks = [
+            SimpleNamespace(
+                choices=[SimpleNamespace(delta=SimpleNamespace(content="Local answer."))]
+            )
+        ]
+        local_create = Mock(return_value=iter(local_chunks))
+        client.local_client = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(create=local_create),
+            )
+        )
+
+        answer = list(
+            client.generate_stream([{"role": "user", "content": "test"}])
+        )
+
+        self.assertEqual(answer, ["Local answer."])
+        self.assertEqual(client.get_active_provider(), "ollama")
+        self.assertEqual(client.get_model_name(), "mistral:latest")
+        groq_create.assert_called_once()
+        local_create.assert_called_once()
+
+    def test_generate_uses_local_ollama_after_groq_certificate_failure(self):
+        provider_error = RuntimeError("Connection error.")
+        provider_error.__cause__ = RuntimeError(
+            "[SSL: CERTIFICATE_VERIFY_FAILED] unable to get local issuer certificate"
+        )
+        groq_create = Mock(side_effect=provider_error)
+        client = self.make_client(groq_create)
+        local_create = Mock(
+            return_value=SimpleNamespace(
+                choices=[
+                    SimpleNamespace(
+                        message=SimpleNamespace(content="Local answer.")
+                    )
+                ]
+            )
+        )
+        client.local_client = SimpleNamespace(
+            chat=SimpleNamespace(
+                completions=SimpleNamespace(create=local_create),
+            )
+        )
+
+        answer = client.generate([{"role": "user", "content": "test"}])
+
+        self.assertEqual(answer, "Local answer.")
+        self.assertEqual(client.get_active_provider(), "ollama")
+        self.assertEqual(client.get_model_name(), "mistral:latest")
+        groq_create.assert_called_once()
+        local_create.assert_called_once()
 
     def test_missing_api_key_never_echoes_the_user_prompt_as_an_answer(self):
         client = self.make_client(Mock())

@@ -9,6 +9,8 @@ load_dotenv()
 # LLM
 GROQ_API_KEY    = os.getenv("GROQ_API_KEY", "")
 GROQ_MODEL      = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434/v1")
+OLLAMA_MODEL    = os.getenv("OLLAMA_MODEL", "mistral:latest")
 
 # Paths
 BASE_DIR        = os.path.abspath(os.path.join(os.path.dirname(__file__), "../"))

@@ -405,8 +405,8 @@ function App() {
       <div className="sidebar">
         <div className="sidebar-header">
           <span className="logo-icon">🩺</span>
-          <h1 className="app-title">MedAssist-AI</h1>
-          <div className="app-subtitle">Agentic Medical RAG System</div>
+          <h1 className="app-title">MedAssist AI</h1>
+          <div className="app-subtitle">Agentic Medical Document Assistant</div>
         </div>
 
         <div className="sidebar-body">
@@ -658,7 +658,7 @@ function App() {
             {messages.length === 0 ? (
               <div className="welcome-screen">
                 <span className="welcome-icon">🏥</span>
-                <h3>Welcome to MedAssist-AI</h3>
+                <h3>Welcome to MedAssist AI</h3>
                 <p>
                   An agentic AI system that reasons step-by-step through medical documents
                   using ReAct agents, hybrid retrieval, and transparent prompt and evidence scoring.

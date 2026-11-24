@@ -76,6 +76,7 @@ def get_status():
 
     return {
         "llm_model":        llm_client.get_model_name(),
+        "llm_provider":     llm_client.get_active_provider(),
         "llm_configured":   llm_client.is_configured(),
         "llm_rate_limited": rate_limit_status["limited"],
         "llm_retry_after_seconds": rate_limit_status["retry_after_seconds"],
