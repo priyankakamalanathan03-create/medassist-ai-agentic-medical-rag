@@ -207,6 +207,22 @@ class TestGroqRateLimits(unittest.TestCase):
 
         create.assert_called_once()
 
+    def test_streaming_certificate_failure_is_actionable_and_not_retried(self):
+        provider_error = RuntimeError("Connection error.")
+        provider_error.__cause__ = RuntimeError(
+            "[SSL: CERTIFICATE_VERIFY_FAILED] unable to get local issuer certificate"
+        )
+        create = Mock(side_effect=provider_error)
+        client = self.make_client(create)
+
+        with self.assertRaisesRegex(
+            RuntimeError,
+            "TLS certificate validation failed while connecting to Groq",
+        ):
+            list(client.generate_stream([{"role": "user", "content": "test"}]))
+
+        create.assert_called_once()
+
     def test_missing_api_key_never_echoes_the_user_prompt_as_an_answer(self):
         client = self.make_client(Mock())
         client.client = None

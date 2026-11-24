@@ -97,6 +97,7 @@ GROQ_MODEL=llama-3.1-8b-instant
 ```
 
 The model name is configurable and must be available to your account. Never commit or share `backend/.env`.
+If chat reports a TLS certificate validation error, check the Windows trust store or ask your network administrator to verify HTTPS inspection for `api.groq.com`. Do not disable certificate verification.
 
 ### 2. Add documents and build the indexes
 

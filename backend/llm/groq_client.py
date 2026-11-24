@@ -171,6 +171,18 @@ class GroqLLMClient:
             or "rate limit" in str(error).lower()
         )
 
+    @staticmethod
+    def _is_certificate_verification_error(error: Exception) -> bool:
+        seen: set[int] = set()
+        current: BaseException | None = error
+        while current is not None and id(current) not in seen:
+            seen.add(id(current))
+            message = str(current).lower()
+            if "certificate_verify_failed" in message or "certificate verify failed" in message:
+                return True
+            current = current.__cause__ or current.__context__
+        return False
+
     def generate(
         self,
         messages: list,
@@ -208,6 +220,12 @@ class GroqLLMClient:
             except Exception as e:
                 last_error = e
                 err_str = str(e)
+                if self._is_certificate_verification_error(e):
+                    raise RuntimeError(
+                        "TLS certificate validation failed while connecting to Groq. "
+                        "Check the Windows trust store or network HTTPS inspection; "
+                        "do not disable certificate verification."
+                    ) from e
                 if self._is_rate_limit_error(e):
                     raise self._record_rate_limit(e) from e
                 if "Connection" in err_str:
@@ -276,6 +294,12 @@ class GroqLLMClient:
                     raise
                 last_error = e
                 err_str = str(e)
+                if self._is_certificate_verification_error(e):
+                    raise RuntimeError(
+                        "TLS certificate validation failed while connecting to Groq. "
+                        "Check the Windows trust store or network HTTPS inspection; "
+                        "do not disable certificate verification."
+                    ) from e
                 if self._is_rate_limit_error(e):
                     raise self._record_rate_limit(e) from e
                 if "Connection" in err_str:
